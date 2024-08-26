@@ -29,11 +29,11 @@ To test your contract:
 
 ### Grading
 
-Your grade is determined by the actual profit you earn in the test case. After the program execution, you should see `Profit xxx ETH` at the end of a successful liquidation. If you are not using the docker environment, for successful execution you should also see a `profit.txt` file which contains the amount of ETH that you earned after the liquidation. **If your implementation is correct, you should be receiving at least 21 ETH as the profit.** Note that we reduce the gas fee to be zero to encourage programming complicated liquidation strategies. 
+Your grade is determined by the actual profit you earn in the test case. After the program execution, you should see `Profit xxx ETH` at the end of a successful liquidation. If you are not using the docker environment, for successful execution you should also see a `profit.txt` file which contains the amount of ETH that you earned after the liquidation. **If your implementation is correct, you should be receiving at least 21 ETH as the profit.** Note that we reduce the gas fee to be zero to encourage programming complicated liquidation strategies.
 
 ### Submission
 
-Your submission should be a single `LiquidationOperator.sol` file **that contains at most one import statement `import "hardhat/console.sol";`**. If you plan to include libraries or interfaces from other npm packages, please manually add them to your contract file so that we have a unified environment for grading. 
+Your submission should be a single `LiquidationOperator.sol` file **that contains at most one import statement `import "hardhat/console.sol";`**. If you plan to include libraries or interfaces from other npm packages, please manually add them to your contract file so that we have a unified environment for grading.
 
 ## Background
 
@@ -54,7 +54,7 @@ function liquidationCall(
 
 By calling this function, you then repay some amount of token D to Aave and in return, some token C is sent to your account.
 
-You should make sure that the user is in a liquidatable state. Otherwise, the aave smart contract would revert your transaction and you would pay transaction fees for an unsuccessful liquidation. 
+You should make sure that the user is in a liquidatable state. Otherwise, the aave smart contract would revert your transaction and you would pay transaction fees for an unsuccessful liquidation.
 
 ### Uniswap flash loan
 What if you don't have any upfront token D, but you do need some to repay in the liquidation? You can use flash loans! A Uniswap flash loan (a.k.a flash swap) can grant you the cryptocurrencies available in the pool without any collateral, as long as you preserve the constant `K` in the end of the transaction. Check out the detailed code snippet ([Uniswap V2](https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2Pair.sol)) in the following.
