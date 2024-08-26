@@ -210,7 +210,7 @@ contract LiquidationOperator is IUniswapV2Callee {
         // (please feel free to develop other workflows as long as they liquidate the target user successfully)
         //    *** Your code here ***
 
-        uint256 amountToLiquidate = 2023415014000 -30e10;
+        uint256 amountToLiquidate = 1723415014000;
 
         address poolETH_USDT = IUniswapV2Factory(factory).getPair(WETH, USDT);
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(poolETH_USDT).getReserves();
