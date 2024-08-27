@@ -100,6 +100,20 @@ interface IUniswapV2Factory {
         view
         returns (address pair);
 }
+interface ICurvePool {
+    function exchange(
+        int128 i,        // Index value of the from token in the pool
+        int128 j,        // Index value of the to token in the pool
+        uint256 dx,      // Amount of `from` token to exchange
+        uint256 min_dy   // Minimum amount of `to` token expected to receive
+    ) external;
+
+    function get_dy(
+        int128 i,        // Index value of the from token in the pool
+        int128 j,        // Index value of the to token in the pool
+        uint256 dy       // Desired amount of `to` token (USDT)
+    ) external view returns (uint256);
+}
 
 // https://github.com/Uniswap/v2-core/blob/master/contracts/interfaces/IUniswapV2Pair.sol
 // https://docs.uniswap.org/protocol/V2/reference/smart-contracts/pair
@@ -141,6 +155,7 @@ contract LiquidationOperator is IUniswapV2Callee {
     address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address public constant AAVE = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9;
+    address public constant CURVE = 0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7;
     address public constant factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
     address public constant target = 0x59CE4a2AC5bC3f5F225439B2993b86B42f6d3e9F;
     address immutable owner;
@@ -193,6 +208,8 @@ contract LiquidationOperator is IUniswapV2Callee {
 
     // required by the testing script, entry for your liquidation call
     function operate() external {
+
+
         // 0. security checks and initializing variables
         //    *** Your code here ***
 
@@ -210,13 +227,18 @@ contract LiquidationOperator is IUniswapV2Callee {
         // (please feel free to develop other workflows as long as they liquidate the target user successfully)
         //    *** Your code here ***
 
-        uint256 amountToLiquidate = 1723415014000;
+        uint256 amountToLiquidate = 2919714318466;
+        uint256 amountInUSDC = ICurvePool(CURVE).get_dy(
+            1,
+            2,
+            amountToLiquidate
+        );
+        address poolETH_USDC = 0x397FF1542f962076d0BFE58eA045FfA2d347ACa0;//IUniswapV2Factory(factory).getPair(WETH, USDC);
+        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(poolETH_USDC).getReserves();
+        uint256 ETH_USDC_amountETHIn = getAmountIn(amountToLiquidate, reserve1, reserve0); //check token0 and 1
 
-        address poolETH_USDT = IUniswapV2Factory(factory).getPair(WETH, USDT);
-        (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(poolETH_USDT).getReserves();
-        uint256 ETH_USDT_amountETHIn = getAmountIn(amountToLiquidate, reserve0, reserve1);
 
-        IUniswapV2Pair(poolETH_USDT).swap(0, amountToLiquidate, address(this), abi.encodePacked(ETH_USDT_amountETHIn));
+        IUniswapV2Pair(poolETH_USDC).swap(amountInUSDC, 0, address(this), abi.encodePacked(ETH_USDC_amountETHIn));
 
         // 3. Convert the profit into ETH and send back to sender
 
@@ -229,29 +251,36 @@ contract LiquidationOperator is IUniswapV2Callee {
     // required by the swap
     function uniswapV2Call(
         address,
+        uint256 amount0,
         uint256,
-        uint256 amount1,
         bytes calldata data
     ) external override {
         uint256 amountToRepay = abi.decode(data, (uint256));
 
         // 2.0. security checks and initializing variables
-        //    *** Your code here ***
+        IERC20(USDC).approve(CURVE, amount0);
+        ICurvePool(CURVE).exchange(
+            1,
+            2,
+            amount0,
+            0
+        );
 
+        uint256 liquidate = IERC20(USDT).balanceOf(address(this));
         // 2.1 liquidate the target user
-        IERC20(USDT).approve(AAVE, amount1);
+        IERC20(USDT).approve(AAVE, liquidate);
         ILendingPool(AAVE).liquidationCall(
             WBTC,
             USDT,
             target,
-            amount1,
+            liquidate,
             false
         );
 
         uint256 amountWBTC = IERC20(WBTC).balanceOf(address(this));
 
         // 2.2 swap WBTC for other things or repay directly
-        address poolETH_WBTC = IUniswapV2Factory(factory).getPair(WETH, WBTC);
+        address poolETH_WBTC = 0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58; //IUniswapV2Factory(factory).getPair(WETH, WBTC);
 
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(poolETH_WBTC).getReserves();
 
