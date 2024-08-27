@@ -227,7 +227,7 @@ contract LiquidationOperator is IUniswapV2Callee {
         // (please feel free to develop other workflows as long as they liquidate the target user successfully)
         //    *** Your code here ***
 
-        uint256 amountToLiquidate = 2919714318466;
+        uint256 amountToLiquidate = 2922714318466; //2919714318466 + 3000e6;
         uint256 amountInUSDC = ICurvePool(CURVE).get_dy(
             1,
             2,
@@ -278,6 +278,7 @@ contract LiquidationOperator is IUniswapV2Callee {
         );
 
         uint256 amountWBTC = IERC20(WBTC).balanceOf(address(this));
+        console.log("WBTC balance: ", amountWBTC);
 
         // 2.2 swap WBTC for other things or repay directly
         address poolETH_WBTC = 0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58; //IUniswapV2Factory(factory).getPair(WETH, WBTC);
@@ -293,8 +294,6 @@ contract LiquidationOperator is IUniswapV2Callee {
         amountTakenETH = getAmountOut(amountWBTC, reserve0, reserve1);
         IERC20(WBTC).transfer(poolETH_WBTC, amountWBTC);
         IUniswapV2Pair(poolETH_WBTC).swap(0, amountTakenETH, address(this), new bytes(0));
-
-
 
         // 2.3 repay
         IERC20(WETH).transfer(msg.sender, amountToRepay);

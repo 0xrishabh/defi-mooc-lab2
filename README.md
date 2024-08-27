@@ -2,7 +2,7 @@
 
 ## Current Best
 
-`Profit = 92.107607968317628576 ETH`
+`Profit = 92.155108577813123747`
 
 ## Crux of the Problem
 
@@ -17,7 +17,7 @@ Some ideas that didn’t work for **P1**:
 1. Directly using the WBTC/USDT pool (Liquidity was too low)
 2. Using WETH/USDC and then USDC/USDT pools to get USDT instead of WETH/USDT. Although WETH/USDC has more liquidity, the overall cost was higher.
 
-For **P2**, if the user’s debt is X and the health factor is less than 1, then the maximum liquidation amount = X / 2. I performed a binary search starting between 0 and X/2, and after a few trials, I determined the optimal liquidation amount to be 1723415014000 which yielded the highest profit I could achieve locally.
+For **P2**, if the user’s debt is X and the health factor is less than 1, then the maximum liquidation amount = X / 2. I performed a binary search starting between 0 and X/2, and after a few trials, I determined the optimal liquidation amount to be 2922714318466 which yielded the highest profit I could achieve locally.
 
 #### Solution Flow
 1. Take a flash loan from the WETH/USDT pool.
