@@ -2,7 +2,7 @@
 
 ## Current Best
 
-`PROFIT = 43.826468413683280535 ETH`
+`Profit = 92.107607968317628576 ETH`
 
 ## Crux of the Problem
 
