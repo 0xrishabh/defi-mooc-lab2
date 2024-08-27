@@ -283,10 +283,18 @@ contract LiquidationOperator is IUniswapV2Callee {
         address poolETH_WBTC = 0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58; //IUniswapV2Factory(factory).getPair(WETH, WBTC);
 
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(poolETH_WBTC).getReserves();
+        uint256 amountTakenETH = getAmountOut(2*amountWBTC/3, reserve0, reserve1);
+        IERC20(WBTC).transfer(poolETH_WBTC, 2*amountWBTC/3);
+        IUniswapV2Pair(poolETH_WBTC).swap(0, amountTakenETH, address(this), new bytes(0));
 
-        uint256 amountTakenETH = getAmountOut(amountWBTC, reserve0, reserve1);
+        poolETH_WBTC = IUniswapV2Factory(factory).getPair(WETH, WBTC);
+        amountWBTC = IERC20(WBTC).balanceOf(address(this));
+        (reserve0, reserve1, ) = IUniswapV2Pair(poolETH_WBTC).getReserves();
+        amountTakenETH = getAmountOut(amountWBTC, reserve0, reserve1);
         IERC20(WBTC).transfer(poolETH_WBTC, amountWBTC);
         IUniswapV2Pair(poolETH_WBTC).swap(0, amountTakenETH, address(this), new bytes(0));
+
+
 
         // 2.3 repay
         IERC20(WETH).transfer(msg.sender, amountToRepay);
